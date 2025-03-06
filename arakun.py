@@ -3,7 +3,7 @@ import openai
 
 app = Flask(__name__)
 
-openai.api_key = "your-api-key"
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 def generate_response(user_input):
     messages = [
@@ -23,4 +23,4 @@ def chat():
     return jsonify({"reply": response})
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=10000)
