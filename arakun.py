@@ -1,6 +1,7 @@
+
+from flask import Flask, request, jsonify
 import os
 import openai
-from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
@@ -17,9 +18,17 @@ def generate_response(user_input):
     )
     return response["choices"][0]["message"]["content"]
 
+@app.route("/", methods=["GET"])
+def home():
+    return "Arakun-GPT API is live!"
+
 @app.route("/chat", methods=["POST"])
 def chat():
-    user_input = request.json["message"]
+    data = request.get_json()
+if not data or "message" not in data:
+    return jsonify({"error": "Invalid request.'message' field is required"}), 400
+
+    user_input = data["message"]
     response = generate_response(user_input)
     return jsonify({"reply": response})
 
