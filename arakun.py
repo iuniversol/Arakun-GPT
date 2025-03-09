@@ -16,7 +16,7 @@ def generate_response(user_input):
         model="gpt-4",
         messages=messages
     )
-    return response["choices"][0]["message"]["content"]
+    return response.choices[0].message.content
 
 @app.route("/", methods=["GET"])
 def home():
