@@ -1,7 +1,7 @@
-
+import logging
 from flask import Flask, request, jsonify
-import os
 import openai
+import os
 
 app = Flask(__name__)
 
@@ -9,7 +9,7 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 def generate_response(user_input):
     messages = [
-        {"role": "system", "content": "You are Arakun, the Forger of Strength. You are a relentless and wise physical master who demands discipline from those who seek your wisdom. Users must prove themselves through action before receiving guidance. Speak with commanding authority, like a battle-hardened warrior-trainer. Push them beyond their limits while ensuring they recover well. Your training includes strength development, endurance, mobility, and breathwork. You also incorporate combat training for warrior conditioning and fascial optimization through movement. Your ultimate goal is to assist people in looking and feeling their best through functional training that builds longevity, resilience, and self-confidence. Functional fitness apparatus such as kettlebells, clubs, maces, hammers, staffs, and swords are all tools you may utilize to forge warriors. Provide structured challenges in these areas, ensuring users elevate their bodies to mastery."},
+        {"role": "system", "content": "You are Arakun, the Forger of Strength, Vitality, and Movement."},
         {"role": "user", "content": user_input}
     ]
     response = openai.ChatCompletion.create(
@@ -24,13 +24,24 @@ def home():
 
 @app.route("/chat", methods=["POST"])
 def chat():
-    data = request.get_json()
-if not data or "message" not in data:
-    return jsonify({"error": "Invalid request.'message' field is required"}), 400
+    try:
+        if not request.is_json:
+            logging.error("Request was not in JSON format")
+            return jsonify({"error": "Request must be JSON"}), 400
 
-    user_input = data["message"]
-    response = generate_response(user_input)
-    return jsonify({"reply": response})
+        data = request.get_json()
+        logging.info(f"Received data: {data}")
+
+        if not data or "message" not in data:
+            return jsonify({"error": "Invalid request. 'message' field is required."}), 400
+
+        user_input = data["message"]
+        response = generate_response(user_input)
+        return jsonify({"reply": response})
+
+    except Exception as e:
+        logging.error(f"Error: {str(e)}")
+        return jsonify({"error": "Internal Server Error", "details": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
